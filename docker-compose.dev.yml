@@ -12,13 +12,13 @@ services:
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-north} -p 5433"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-north} -d ${POSTGRES_DB:-northdb} -p 5433"]
       interval: 5s
       timeout: 5s
       retries: 10
 
   api:
-    image: node:20-alpine
+    image: node:20
     container_name: north_api
     restart: unless-stopped
     network_mode: host
@@ -44,7 +44,7 @@ services:
       "
 
   web:
-    image: node:20-alpine
+    image: node:20
     container_name: north_web
     restart: unless-stopped
     network_mode: host
