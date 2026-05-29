@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: north_postgres
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      PGPORT: 5433
+      POSTGRES_USER: ${POSTGRES_USER:-north}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-north123}
+      POSTGRES_DB: ${POSTGRES_DB:-northdb}
+    volumes:
+      - postgres_data_dev:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-north} -p 5433"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  postgres_data_dev:
