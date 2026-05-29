@@ -29,10 +29,10 @@ db:
 	@echo "  ✓ Postgres pronto na porta 5433"
 
 migrate:
-	cd apps/api && npx prisma migrate deploy
+	npm run db:migrate --workspace=apps/api
 
 seed:
-	cd apps/api && npx tsx prisma/seed.ts
+	npm run db:seed --workspace=apps/api
 
 dev:
 	@if command -v tmux > /dev/null 2>&1; then \
