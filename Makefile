@@ -1,10 +1,10 @@
-.PHONY: help up down db migrate seed dev dev-api dev-web logs reset
+.PHONY: help up down db install migrate seed dev dev-api dev-web logs reset
 
 help:
 	@echo ""
 	@echo "  North — Comandos disponíveis"
 	@echo ""
-	@echo "  make up        Sobe o banco (dev) + migra + seed + inicia API e Web"
+	@echo "  make up        Instala deps + sobe o banco (dev) + migra + seed + inicia API e Web"
 	@echo "  make down      Para todos os serviços"
 	@echo "  make db        Sobe só o banco em modo dev (network_mode host)"
 	@echo "  make migrate   Roda as migrations"
@@ -16,11 +16,14 @@ help:
 	@echo "  make reset     Para tudo, apaga o volume e recomeça"
 	@echo ""
 
-up: db migrate seed
+up: install db migrate seed
 	@echo ""
 	@echo "  ✓ Banco pronto. Iniciando API e Web..."
 	@echo ""
 	@$(MAKE) dev
+
+install:
+	npm install --legacy-peer-deps
 
 db:
 	docker compose -f docker-compose.dev.yml up -d postgres
@@ -29,7 +32,7 @@ db:
 	@echo "  ✓ Postgres pronto na porta 5433"
 
 migrate:
-	npm run db:migrate --workspace=apps/api
+	npm run db:migrate:deploy --workspace=apps/api
 
 seed:
 	npm run db:seed --workspace=apps/api
