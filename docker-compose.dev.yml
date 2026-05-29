@@ -3,16 +3,16 @@ services:
     image: postgres:16-alpine
     container_name: north_postgres
     restart: unless-stopped
-    network_mode: host
     environment:
-      PGPORT: 5433
       POSTGRES_USER: ${POSTGRES_USER:-north}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-north123}
       POSTGRES_DB: ${POSTGRES_DB:-northdb}
     volumes:
       - postgres_data_dev:/var/lib/postgresql/data
+    ports:
+      - "5433:5432"
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-north} -d ${POSTGRES_DB:-northdb} -p 5433"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-north} -d ${POSTGRES_DB:-northdb}"]
       interval: 5s
       timeout: 5s
       retries: 10
@@ -21,19 +21,20 @@ services:
     image: node:20
     container_name: north_api
     restart: unless-stopped
-    network_mode: host
     working_dir: /app
     depends_on:
       postgres:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-north}:${POSTGRES_PASSWORD:-north123}@127.0.0.1:5433/${POSTGRES_DB:-northdb}
+      DATABASE_URL: postgresql://${POSTGRES_USER:-north}:${POSTGRES_PASSWORD:-north123}@postgres:5432/${POSTGRES_DB:-northdb}
       JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
       PORT: 3001
       NODE_ENV: development
     volumes:
       - ./apps/api:/app
       - api_node_modules:/app/node_modules
+    ports:
+      - "3001:3001"
     command: >
       sh -c "
         npm install --legacy-peer-deps &&
@@ -47,7 +48,6 @@ services:
     image: node:20
     container_name: north_web
     restart: unless-stopped
-    network_mode: host
     working_dir: /app
     depends_on:
       - api
@@ -59,6 +59,8 @@ services:
       - ./apps/web:/app
       - web_node_modules:/app/node_modules
       - web_next:/app/.next
+    ports:
+      - "3000:3000"
     command: >
       sh -c "
         npm install --legacy-peer-deps &&
