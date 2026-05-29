@@ -4,9 +4,9 @@ help:
 	@echo ""
 	@echo "  North — Comandos disponíveis"
 	@echo ""
-	@echo "  make up        Sobe o banco + migra + seed + inicia API e Web"
+	@echo "  make up        Sobe o banco (dev) + migra + seed + inicia API e Web"
 	@echo "  make down      Para todos os serviços"
-	@echo "  make db        Sobe só o banco (postgres)"
+	@echo "  make db        Sobe só o banco em modo dev (network_mode host)"
 	@echo "  make migrate   Roda as migrations"
 	@echo "  make seed      Roda o seed inicial"
 	@echo "  make dev       Inicia API e Web em paralelo (requer tmux)"
@@ -23,7 +23,7 @@ up: db migrate seed
 	@$(MAKE) dev
 
 db:
-	docker compose up -d postgres
+	docker compose -f docker-compose.dev.yml up -d postgres
 	@echo "  Aguardando postgres ficar saudável..."
 	@until docker exec north_postgres pg_isready -U north -p 5433 -q; do sleep 1; done
 	@echo "  ✓ Postgres pronto na porta 5433"
@@ -52,17 +52,17 @@ dev-web:
 	cd apps/web && npm run dev
 
 down:
-	docker compose down
+	docker compose -f docker-compose.dev.yml down
 	@-kill $$(lsof -ti:3001) 2>/dev/null || true
 	@-kill $$(lsof -ti:3000) 2>/dev/null || true
 	@echo "  ✓ Serviços parados"
 
 logs:
-	docker compose logs -f postgres
+	docker compose -f docker-compose.dev.yml logs -f postgres
 
 reset:
 	@echo "  Resetando tudo..."
-	docker compose down -v
+	docker compose -f docker-compose.dev.yml down -v
 	@-kill $$(lsof -ti:3001) 2>/dev/null || true
 	@-kill $$(lsof -ti:3000) 2>/dev/null || true
 	@echo "  ✓ Pronto. Rode 'make up' para recomeçar."
