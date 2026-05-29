@@ -8,6 +8,7 @@ import { TasksWidget } from '@/components/dashboard/tasks-widget'
 import { HabitsWidget } from '@/components/dashboard/habits-widget'
 import { ProjectsWidget } from '@/components/dashboard/projects-widget'
 import { Clock } from '@/components/dashboard/clock'
+import { QuoteCard } from '@/components/dashboard/quote-card'
 import { useAuthStore } from '@/store/auth'
 
 export default function DashboardPage() {
@@ -17,6 +18,12 @@ export default function DashboardPage() {
     queryKey: ['dashboard'],
     queryFn: () => api.get('/dashboard/summary').then((r) => r.data),
     refetchInterval: 60000,
+  })
+
+  const { data: quote } = useQuery({
+    queryKey: ['quote-today'],
+    queryFn: () => api.get('/quotes/today').then((r) => r.data),
+    staleTime: 1000 * 60 * 60,
   })
 
   const hour = new Date().getHours()
@@ -41,6 +48,9 @@ export default function DashboardPage() {
           <p className="text-muted-foreground text-sm mt-0.5">
             Aqui está o resumo do seu dia
           </p>
+          <div className="mt-3">
+            <QuoteCard quote={quote} />
+          </div>
         </div>
         <Clock />
       </div>
