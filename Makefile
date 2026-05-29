@@ -16,11 +16,12 @@ help:
 up:
 	docker compose -f docker-compose.dev.yml up -d
 	@echo ""
-	@echo "  Aguardando serviços..."
-	@until curl -sf http://localhost:3001/health > /dev/null 2>&1; do sleep 2; done
-	@echo "  ✓ API pronta   → http://localhost:3001"
-	@until curl -sf http://localhost:3000 > /dev/null 2>&1; do sleep 2; done
-	@echo "  ✓ Web pronta   → http://localhost:3000"
+	@echo "  Containers iniciados!"
+	@echo "  Na primeira vez demora ~2min (instalando dependências)."
+	@echo ""
+	@echo "  Acompanhe:  make logs"
+	@echo "  API:        http://localhost:3001/health"
+	@echo "  Web:        http://localhost:3000"
 	@echo ""
 
 down:
