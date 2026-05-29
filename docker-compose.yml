@@ -1,0 +1,52 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: north_postgres
+    restart: unless-stopped
+    network_mode: host
+    environment:
+      PGPORT: 5433
+      POSTGRES_USER: ${POSTGRES_USER:-north}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-north123}
+      POSTGRES_DB: ${POSTGRES_DB:-northdb}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-north} -p 5433"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./apps/api
+      dockerfile: Dockerfile
+      network: host
+    container_name: north_api
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-north}:${POSTGRES_PASSWORD:-north123}@127.0.0.1:5433/${POSTGRES_DB:-northdb}
+      JWT_SECRET: ${JWT_SECRET:-super_secret_jwt_key_change_in_production}
+      PORT: 3001
+      NODE_ENV: production
+
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+      network: host
+    container_name: north_web
+    restart: unless-stopped
+    network_mode: host
+    depends_on:
+      - api
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:3001}
+      PORT: 3000
+
+volumes:
+  postgres_data:
