@@ -11,6 +11,7 @@ import { projectRoutes } from './routes/projects'
 import { taskRoutes } from './routes/tasks'
 import { habitRoutes } from './routes/habits'
 import { dashboardRoutes } from './routes/dashboard'
+import { quoteRoutes } from './routes/quotes'
 
 const app = Fastify({ logger: process.env.NODE_ENV === 'development' })
 
@@ -45,6 +46,7 @@ app.register(projectRoutes, { prefix: '/projects' })
 app.register(taskRoutes, { prefix: '/tasks' })
 app.register(habitRoutes, { prefix: '/habits' })
 app.register(dashboardRoutes, { prefix: '/dashboard' })
+app.register(quoteRoutes, { prefix: '/quotes' })
 
 app.get('/health', async () => ({ status: 'ok' }))
 
