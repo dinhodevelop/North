@@ -2,6 +2,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/utils'
 import { TrendingUp, TrendingDown, Wallet } from 'lucide-react'
 
+const DISTRIBUTION = [
+  { label: 'Dívidas', pct: 0.5, color: 'text-red-400' },
+  { label: 'Reserva', pct: 0.3, color: 'text-blue-400' },
+  { label: 'Lote', pct: 0.2, color: 'text-amber-400' },
+]
+
 interface Props {
   data?: {
     income: number
@@ -46,6 +52,21 @@ export function FinanceSummaryCard({ data }: Props) {
           <div className="pt-1 border-t border-border">
             <p className="text-xs text-muted-foreground">Dívidas em aberto</p>
             <p className="text-sm font-semibold text-amber-400">{formatCurrency(data?.totalDebt || 0)}</p>
+          </div>
+        )}
+        {(data?.income || 0) > 0 && (
+          <div className="pt-2 border-t border-border space-y-1">
+            <p className="text-xs text-muted-foreground">Distribuição da renda</p>
+            {DISTRIBUTION.map(({ label, pct, color }) => (
+              <div key={label} className="flex items-center justify-between">
+                <span className="text-xs text-muted-foreground">
+                  {label} <span className="opacity-60">{pct * 100}%</span>
+                </span>
+                <span className={`text-xs font-semibold ${color}`}>
+                  {formatCurrency((data?.income || 0) * pct)}
+                </span>
+              </div>
+            ))}
           </div>
         )}
       </CardContent>

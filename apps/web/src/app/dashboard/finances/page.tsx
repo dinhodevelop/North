@@ -10,7 +10,13 @@ import { TransactionDialog } from '@/components/finances/transaction-dialog'
 import { DebtDialog } from '@/components/finances/debt-dialog'
 import { MonthlyChart } from '@/components/finances/monthly-chart'
 import { formatCurrency } from '@/lib/utils'
-import { Plus, TrendingUp, TrendingDown, Wallet, PiggyBank, Home, Trash2 } from 'lucide-react'
+import { Plus, TrendingUp, TrendingDown, Wallet, PiggyBank, Home, Trash2, Info } from 'lucide-react'
+
+const DISTRIBUTION = [
+  { label: 'Dívidas', pct: 0.5, color: 'text-red-400' },
+  { label: 'Reserva', pct: 0.3, color: 'text-blue-400' },
+  { label: 'Lote', pct: 0.2, color: 'text-amber-400' },
+]
 
 export default function FinancesPage() {
   const qc = useQueryClient()
@@ -67,6 +73,25 @@ export default function FinancesPage() {
           </Button>
         </div>
       </div>
+
+      {(summary?.totalIncome || 0) > 0 && (
+        <div className="rounded-lg border border-border bg-muted/30 p-3">
+          <div className="flex items-start gap-2">
+            <Info className="w-4 h-4 text-muted-foreground mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-xs text-muted-foreground mb-2">Distribuição da renda — cada entrada deve seguir esta regra:</p>
+              <div className="grid grid-cols-3 gap-2">
+                {DISTRIBUTION.map(({ label, pct, color }) => (
+                  <div key={label} className="text-center">
+                    <p className={`text-sm font-semibold ${color}`}>{formatCurrency(summary.totalIncome * pct)}</p>
+                    <p className="text-xs text-muted-foreground">{label} · {pct * 100}%</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         <SummaryCard
