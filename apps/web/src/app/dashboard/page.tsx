@@ -9,6 +9,7 @@ import { HabitsWidget } from '@/components/dashboard/habits-widget'
 import { ProjectsWidget } from '@/components/dashboard/projects-widget'
 import { Clock } from '@/components/dashboard/clock'
 import { QuoteCard } from '@/components/dashboard/quote-card'
+import { WaterReminder } from '@/components/dashboard/water-reminder'
 import { useAuthStore } from '@/store/auth'
 
 export default function DashboardPage() {
@@ -62,9 +63,10 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <TasksWidget tasks={data?.todayTasks || []} />
         <HabitsWidget habits={data?.habits || []} />
+        <WaterReminder />
       </div>
 
       <ProjectsWidget projects={data?.projects || []} />
