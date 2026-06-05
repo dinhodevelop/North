@@ -33,6 +33,7 @@ services:
     volumes:
       - ./apps/api:/app
       - api_node_modules:/app/node_modules
+      - api_seed_flag:/tmp/seeds
     ports:
       - "3001:3001"
     command: >
@@ -40,7 +41,11 @@ services:
         npm install --legacy-peer-deps &&
         node_modules/.bin/prisma generate &&
         node_modules/.bin/prisma migrate deploy &&
-        node_modules/.bin/tsx prisma/seed.ts &&
+        if [ ! -f /tmp/seeds/done ]; then
+          node_modules/.bin/tsx prisma/seed.ts &&
+          mkdir -p /tmp/seeds &&
+          touch /tmp/seeds/done
+        fi &&
         node_modules/.bin/tsx watch src/server.ts
       "
 
@@ -70,5 +75,6 @@ services:
 volumes:
   postgres_data_dev:
   api_node_modules:
+  api_seed_flag:
   web_node_modules:
   web_next:
