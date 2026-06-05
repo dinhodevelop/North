@@ -23,38 +23,40 @@ export default function FinancesPage() {
   const [txOpen, setTxOpen] = useState(false)
   const [debtOpen, setDebtOpen] = useState(false)
 
-  const { data: summary } = useQuery({
-    queryKey: ['finance-summary'],
-    queryFn: () => api.get('/transactions/summary').then((r) => r.data),
+  const { data: finance } = useQuery({
+    queryKey: ['finances'],
+    queryFn: async () => {
+      const [summaryRes, transactionsRes, debtsRes, chartRes] = await Promise.all([
+        api.get('/transactions/summary'),
+        api.get('/transactions'),
+        api.get('/debts'),
+        api.get('/transactions/monthly-chart'),
+      ])
+      return {
+        summary: summaryRes.data,
+        transactions: transactionsRes.data,
+        debts: debtsRes.data,
+        chart: chartRes.data,
+      }
+    },
   })
 
-  const { data: transactions } = useQuery({
-    queryKey: ['transactions'],
-    queryFn: () => api.get('/transactions').then((r) => r.data),
-  })
-
-  const { data: debts } = useQuery({
-    queryKey: ['debts'],
-    queryFn: () => api.get('/debts').then((r) => r.data),
-  })
-
-  const { data: chart } = useQuery({
-    queryKey: ['monthly-chart'],
-    queryFn: () => api.get('/transactions/monthly-chart').then((r) => r.data),
-  })
+  const summary = finance?.summary || {}
+  const transactions = finance?.transactions || []
+  const debts = finance?.debts || []
+  const chart = finance?.chart || {}
 
   const deleteTransaction = useMutation({
     mutationFn: (id: string) => api.delete(`/transactions/${id}`),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['transactions'] })
-      qc.invalidateQueries({ queryKey: ['finance-summary'] })
+      qc.invalidateQueries({ queryKey: ['finances'] })
       qc.invalidateQueries({ queryKey: ['dashboard'] })
     },
   })
 
   const deleteDebt = useMutation({
     mutationFn: (id: string) => api.delete(`/debts/${id}`),
-    onSuccess: () => qc.invalidateQueries({ queryKey: ['debts'] }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['finances'] }),
   })
 
   return (

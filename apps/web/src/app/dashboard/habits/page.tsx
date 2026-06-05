@@ -13,15 +13,19 @@ export default function HabitsPage() {
   const [newIcon, setNewIcon] = useState('✅')
   const [adding, setAdding] = useState(false)
 
-  const { data: habits } = useQuery({
+  const { data: habits, isLoading: habitsLoading } = useQuery({
     queryKey: ['habits'],
-    queryFn: () => api.get('/habits').then((r) => r.data),
+    queryFn: async () => {
+      const [habitsRes, streaksRes] = await Promise.all([
+        api.get('/habits'),
+        api.get('/habits/streaks'),
+      ])
+      return { habits: habitsRes.data, streaks: streaksRes.data }
+    },
   })
 
-  const { data: streaks } = useQuery({
-    queryKey: ['habit-streaks'],
-    queryFn: () => api.get('/habits/streaks').then((r) => r.data),
-  })
+  const habitsData = habits?.habits || []
+  const streaksData = habits?.streaks || []
 
   const toggleHabit = useMutation({
     mutationFn: (habitId: string) => api.post('/habits/toggle', { habitId }),
@@ -48,11 +52,11 @@ export default function HabitsPage() {
     },
   })
 
-  const completedCount = habits?.filter((h: any) => h.completedToday).length || 0
-  const totalCount = habits?.length || 0
+  const completedCount = habitsData?.filter((h: any) => h.completedToday).length || 0
+  const totalCount = habitsData?.length || 0
 
   const getStreak = (habitId: string) =>
-    streaks?.find((s: any) => s.habitId === habitId)?.streak || 0
+    streaksData?.find((s: any) => s.habitId === habitId)?.streak || 0
 
   return (
     <div className="space-y-6">
@@ -105,13 +109,13 @@ export default function HabitsPage() {
       )}
 
       <div className="grid grid-cols-1 gap-2">
-        {(!habits || habits.length === 0) && (
+        {(!habitsData || habitsData.length === 0) && (
           <div className="text-center py-16">
             <p className="text-muted-foreground">Nenhum hábito criado ainda.</p>
           </div>
         )}
 
-        {habits?.map((h: any) => {
+        {habitsData?.map((h: any) => {
           const streak = getStreak(h.id)
           return (
             <Card
