@@ -12,11 +12,13 @@ import {
   Briefcase,
   CheckSquare,
   Zap,
+  Sparkles,
   LogOut,
 } from 'lucide-react'
 
 const navItems = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/dashboard/coach', label: 'Coach', icon: Sparkles },
   { href: '/dashboard/finances', label: 'Finanças', icon: Wallet },
   { href: '/dashboard/goals', label: 'Metas', icon: Target },
   { href: '/dashboard/projects', label: 'Projetos', icon: Briefcase },

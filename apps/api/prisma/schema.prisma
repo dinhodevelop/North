@@ -22,6 +22,9 @@ model User {
   tasks        Task[]
   habits       Habit[]
   habitLogs    HabitLog[]
+  coachAreas   CoachArea[]
+  coachGoals   CoachGoal[]
+  coachMessages CoachMessage[]
 }
 
 model Transaction {
@@ -151,4 +154,48 @@ model Quote {
   id     String  @id @default(cuid())
   text   String
   author String?
+}
+
+// --- Coach / IA pessoal ---
+// Áreas e metas do "contrato pessoal". Conteúdo sensível: vive só no banco,
+// cadastrado pela tela de admin. Nunca em código/seed/GitHub.
+
+model CoachArea {
+  id        String      @id @default(cuid())
+  title     String
+  summary   String?
+  order     Int         @default(0)
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  goals     CoachGoal[]
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+}
+
+model CoachGoal {
+  id          String     @id @default(cuid())
+  areaId      String
+  area        CoachArea  @relation(fields: [areaId], references: [id], onDelete: Cascade)
+  description String
+  metric      String?
+  target      Float?
+  deadline    DateTime?
+  status      String     @default("active")
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([areaId])
+}
+
+model CoachMessage {
+  id        String   @id @default(cuid())
+  role      String
+  content   String
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
 }
